@@ -1,0 +1,11 @@
+﻿<div class="@ClassFirst">
+    <div class="@ClassSecond">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string ClassFirst { get; set; } = "card rounded-4 border-0 shadow-lg home-card mx-auto";
+    [Parameter] public string ClassSecond { get; set; } = "card-body p-5";
+}

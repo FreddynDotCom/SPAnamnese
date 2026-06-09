@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SPAnamnese.ApiService/SPAnamnese.ApiService.csproj" />
+  <Project Path="SPAnamnese.AppHost/SPAnamnese.AppHost.csproj" />
+  <Project Path="SPAnamnese.ServiceDefaults/SPAnamnese.ServiceDefaults.csproj" />
+  <Project Path="SPAnamnese.Web/SPAnamnese.Web.csproj" />
+</Solution>
