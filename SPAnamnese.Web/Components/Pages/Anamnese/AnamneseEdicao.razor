@@ -1,4 +1,4 @@
-﻿@page "/anamnese/editar/{idPaciente:long}"
+﻿@page "/anamnese/editar/{idPaciente:int}"
 
 @inject NavigationManager Navigation
 
@@ -560,7 +560,7 @@
 
 @code {
     [Parameter]
-    public long idPaciente { get; set; }
+    public int idPaciente { get; set; }
 
     // ── 1. Identificação ──────────────────────────────────────────────────────
     private string nomeDigitado = string.Empty;
