@@ -1,0 +1,38 @@
+﻿@page "/anamnese"
+
+@inject NavigationManager Navigation
+
+@rendermode InteractiveServer
+
+<PageTitle>Listagem - @SiteConfig.NomeSite</PageTitle>
+
+<AnimatedContainer Distance="80"
+                   Direction="vertical"
+                   Duration="0.9"
+                   Ease="power3.out"
+                   Delay="0"
+                   AnimateOpacity="true"
+                   Enabled="@SiteConfig.HabilitarAnimacoes">
+
+    <h3 class="fw-bolder">LISTAGEM DE ANAMNESE</h3>
+
+    <AnimatedContainer Distance="80"
+                       Direction="vertical"
+                       Duration="0.9"
+                       Ease="power3.out"
+                       Delay="0.2"
+                       AnimateOpacity="true"
+                       Enabled="@SiteConfig.HabilitarAnimacoes">
+
+
+        <div class="mt-5 mb-2">
+            <button class="btn btn-success" @onclick="@(() => Navigation.NavigateTo("/anamnese/novo"))"><i class="bi bi-plus-lg"></i> Novo</button>
+        </div>
+
+    </AnimatedContainer>
+
+</AnimatedContainer>
+
+@code {
+
+}
