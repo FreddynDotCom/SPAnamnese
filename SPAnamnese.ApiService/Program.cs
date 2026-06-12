@@ -1,8 +1,25 @@
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using SPAnamnese.ApiService.Data;
+using SPAnamnese.ApiService.Interfaces;
+using SPAnamnese.ApiService.Mapper;
+using SPAnamnese.ApiService.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+string defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection")!;
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(defaultConnection, ServerVersion.AutoDetect(defaultConnection)));
 
 builder.AddServiceDefaults();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
+
+builder.Services.AddControllers();
+
+builder.Services.AddAutoMapper(typeof(CoreMapper));
+
+builder.Services.AddScoped<IPacientesSistema, PacientesSistemaService>();
 
 var app = builder.Build();
 
@@ -16,4 +33,5 @@ if (app.Environment.IsDevelopment())
 
 app.MapDefaultEndpoints();
 
+app.MapControllers();
 app.Run();
