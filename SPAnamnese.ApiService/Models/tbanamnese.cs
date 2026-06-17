@@ -25,7 +25,7 @@ public partial class tbanamnese
     [Column(TypeName = "text")]
     public string? QueixaPrincipal { get; set; }
 
-    public DateOnly? HmaInicio { get; set; }
+    public DateTime? HmaInicio { get; set; }
 
     [Column(TypeName = "text")]
     public string? HmaEvolucao { get; set; }
@@ -126,11 +126,15 @@ public partial class tbanamnese
     [Column(TypeName = "text")]
     public string? PlanoProximosPassos { get; set; }
 
-    public DateOnly? PlanoDataRetorno { get; set; }
+    public DateTime? PlanoDataRetorno { get; set; }
 
     [Column(TypeName = "timestamp")]
     public DateTime DataCriacao { get; set; }
 
     [Column(TypeName = "timestamp")]
     public DateTime? DataAtualizacao { get; set; }
+
+    //INCLUDE
+    public tbpaciente? Paciente { get; set; }
+    public tbprofissional? Profissional { get; set; }
 }

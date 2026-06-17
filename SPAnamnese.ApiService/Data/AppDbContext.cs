@@ -42,6 +42,15 @@ public partial class AppDbContext : DbContext
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("current_timestamp()");
             entity.Property(e => e.DataCriacao).HasDefaultValueSql("current_timestamp()");
+
+            entity.HasOne(a => a.Paciente)
+                  .WithMany()
+                  .HasForeignKey(a => a.PacienteId);
+
+            entity.HasOne(a => a.Profissional)
+                  .WithMany()
+                  .HasForeignKey(a => a.ProfissionalId);
+
         });
 
         modelBuilder.Entity<tbanexo>(entity =>

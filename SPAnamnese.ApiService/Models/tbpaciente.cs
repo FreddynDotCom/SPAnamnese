@@ -19,10 +19,16 @@ public partial class tbpaciente
     [StringLength(11)]
     public string CPF { get; set; } = null!;
 
-    public DateOnly DATANASCIMENTO { get; set; }
+    public DateTime DATANASCIMENTO { get; set; }
 
     [StringLength(20)]
     public string TELEFONE { get; set; } = null!;
+
+    [StringLength(15)]
+    public string SEXO { get; set; } = null!;
+
+    [StringLength(255)]
+    public string RESPONSAVELLEGAL { get; set; } = null!;
 
     [StringLength(255)]
     public string EMAIL { get; set; } = null!;

@@ -19,7 +19,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddAutoMapper(typeof(CoreMapper));
 
+//Injeção de Dependencia
 builder.Services.AddScoped<IPacientesSistema, PacientesSistemaService>();
+builder.Services.AddScoped<IAnamnese, AnamneseService>();
 
 var app = builder.Build();
 

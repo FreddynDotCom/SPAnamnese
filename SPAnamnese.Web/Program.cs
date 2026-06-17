@@ -1,30 +1,35 @@
 using SPAnamnese.Web;
 using SPAnamnese.Web.Components;
+using SPAnamnese.Web.ServiceWeb;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddOutputCache();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
-    {
-        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new("https+http://apiservice");
-    });
+//Configuração das APIs
+string urlService = "https+http://apiservice/api/";
+
+//Configura o HttpClient
+builder.Services.AddHttpClient<PacientesSistemaServiceWeb>(client =>
+{
+    client.BaseAddress = new Uri(urlService);
+});
+builder.Services.AddHttpClient<AnamneseServiceWeb>(client =>
+{
+    client.BaseAddress = new Uri(urlService);
+});
+//END
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

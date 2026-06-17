@@ -1,5 +1,7 @@
 ﻿@page "/anamnese"
 
+@inject PacientesSistemaServiceWeb PacienteSistemaService
+@using ApiService.Interfaces
 @inject NavigationManager Navigation
 
 @rendermode InteractiveServer
@@ -14,7 +16,12 @@
                    AnimateOpacity="true"
                    Enabled="@SiteConfig.HabilitarAnimacoes">
 
-    <h3 class="fw-bolder">LISTAGEM DE ANAMNESE</h3>
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="fw-bolder mb-0">LISTAGEM DE ANAMNESE</h3>
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6">
+            @totalPacientes paciente(s)
+        </span>
+    </div>
 
     <AnimatedContainer Distance="80"
                        Direction="vertical"
@@ -24,15 +31,100 @@
                        AnimateOpacity="true"
                        Enabled="@SiteConfig.HabilitarAnimacoes">
 
+        <div class="row mb-3">
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                <label for="nome" class="form-label">Nome</label>
+                <input id="nome" class="form-control" @oninput="@(e => { nomeFiltro = e.Value?.ToString(); _ = CarregarPacientes(); })" />
+            </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                <label for="cpf" class="form-label">CPF</label>
+                <input id="cpf" class="form-control" @oninput="@(e => { cpfFiltro = e.Value?.ToString(); _ = CarregarPacientes(); })" />
+            </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                <label for="telefone" class="form-label">Telefone</label>
+                <input id="telefone" class="form-control" @oninput="@(e => { telefoneFiltro = e.Value?.ToString(); _ = CarregarPacientes(); })" />
+            </div>
+        </div>
 
-        <div class="mt-5 mb-2">
-            <button class="btn btn-success" @onclick="@(() => Navigation.NavigateTo("/anamnese/novo"))"><i class="bi bi-plus-lg"></i> Novo</button>
+        <div class="card-body p-0">
+            <TabelaAnamneseListagem pacientesLista="pacientesLista"
+                                    totalPacientes="totalPacientes"
+                                    AoSelecionarPaciente="AbrirModalPaciente" />
         </div>
 
     </AnimatedContainer>
 
 </AnimatedContainer>
 
-@code {
+@if (modalAberto)
+{
+    <ModalDestaque Titulo="Detalhes do paciente" AoFechar="@(() => modalAberto = false)" Blur="true">
+        <div class="text-center">
+            <h4 class="fw-semibold">@pacienteDetalhes?.NOME</h4>
+        </div>
 
+        <h6 class="fw-semibold">CPF: @pacienteDetalhes?.CPF</h6>
+        <h6 class="fw-semibold">Sexo: @pacienteDetalhes?.SEXO</h6>
+        <h6 class="fw-semibold">Telefone: @pacienteDetalhes?.TELEFONE</h6>
+        <h6 class="fw-semibold">Email: @pacienteDetalhes?.EMAIL</h6>
+        <h6 class="fw-semibold">Responsável Legal: @pacienteDetalhes?.RESPONSAVELLEGAL</h6>
+        <h6 class="fw-semibold">Data de Nascimento: @pacienteDetalhes?.DATANASCIMENTO.ToString("dd/MM/yyyy")</h6>
+        <h6 class="fw-semibold">Endereço: @pacienteDetalhes?.ENDERECO</h6>
+    </ModalDestaque>
+}
+
+@code {
+    private PacienteSistemaFiltroDTO? pacienteFiltro = new();
+    private List<PacienteSistemaDTO>? pacientesLista = null;
+    private int totalPacientes = 0;
+
+    private bool modalAberto = false;
+    private PacienteSistemaDTO? pacienteDetalhes = null;
+
+    //Filtros
+    private string? nomeFiltro = string.Empty;
+    private string? cpfFiltro = string.Empty;
+    private string? telefoneFiltro = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarPacientes();
+    }
+
+    private void CarregarFiltros()
+    {
+        pacienteFiltro = new PacienteSistemaFiltroDTO
+        {
+            NOME = nomeFiltro,
+            CPF = cpfFiltro,
+            TELEFONE = telefoneFiltro
+        };
+    }
+
+    private CancellationTokenSource? _debounce;
+
+    private async Task CarregarPacientes()
+    {
+        _debounce?.Cancel();
+        _debounce = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(300, _debounce.Token);
+
+            CarregarFiltros();
+            var (items, totalCount) = await PacienteSistemaService.PagedPacientesAsync(pacienteFiltro, 10, 1);
+            pacientesLista = items;
+            totalPacientes = totalCount;
+            StateHasChanged();
+        }
+        catch (TaskCanceledException) { }
+        catch { }
+    }
+
+    private void AbrirModalPaciente(PacienteSistemaDTO paciente)
+    {
+        pacienteDetalhes = paciente;
+        modalAberto = true;
+    }
 }

@@ -60,12 +60,30 @@ namespace SPAnamnese.ApiService.Controller
         ///</summary>
         /// <returns>Atualiza um registro de PACIENTE</returns>
         [HttpPut("UpdatePaciente/{id}")]
-        public async Task<IActionResult> UpdatePaciente(int id, [FromBody] PacienteSistemaDTO pacienteDTO)
+        public async Task<IActionResult> UpdatePaciente(int id, [FromBody] PacienteSistemaFiltroDTO pacienteDTO)
         {
             try
             {
                 var paciente = await _service.UpdatePacienteAsync(id, pacienteDTO);
                 return Ok(paciente);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro interno no servidor: {ex.Message}");
+            }
+        }
+
+        ///<summary>
+        /// [Pacientes] - Paged
+        ///</summary>
+        /// <returns>Pega uma lista de PACIENTES, e pagina ela</returns>
+        [HttpPut("PagedPacientes")]
+        public async Task<IActionResult> PagedPacientes([FromBody] PacienteSistemaFiltroDTO? pacienteParams, int pageSize = 10, int pageNumber = 1)
+        {
+            try
+            {
+                var (items, totalCount) = await _service.PagedPacientesAsync(pageSize, pageNumber, pacienteParams);
+                return Ok(new { items, totalCount });
             }
             catch (Exception ex)
             {

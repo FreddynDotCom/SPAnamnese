@@ -1,11 +1,11 @@
-﻿@page "/registrar-paciente"
+﻿@page "/anamnese/novo-paciente"
 
+@inject PacientesSistemaServiceWeb PacienteService
 @inject NavigationManager Navigation
-@layout EmptyLayout
 
 @rendermode InteractiveServer
 
-<PageTitle>Registrar - @SiteConfig.NomeSite</PageTitle>
+<PageTitle>Novo - @SiteConfig.NomeSite</PageTitle>
 
 <AnimatedContainer Distance="80"
                    Direction="vertical"
@@ -15,32 +15,47 @@
                    AnimateOpacity="true"
                    Enabled="@SiteConfig.HabilitarAnimacoes">
 
-    <CardDestaque>
-        <div>
-            <h1>Registro de <span class="fw-bold">PACIENTE</span>!</h1>
+    <h3 class="fw-bolder">Registrar paciente</h3>
 
-            <form class="row">
+    <form class="row mt-5">
+
+        <AnimatedContainer Distance="80"
+                           Direction="vertical"
+                           Duration="0.9"
+                           Ease="power3.out"
+                           Delay="0.2"
+                           AnimateOpacity="true"
+                           Enabled="@SiteConfig.HabilitarAnimacoes">
+
+            @* ===================== 1. IDENTIFICAÇÃO ===================== *@
+
+            <div class="row">
+                <h4 class="fw-bold text-success">1. Registro de Paciente</h4>
 
                 <div class="col-12 col-lg-6 col-md-12 col-sm-12">
-                    <div class="mt-5">
+                    <div class="mt-3">
 
                         <div>
-                            <label for="nome" class="text-normal ms-4">Nome</label>
+                            <label for="nome" class="text-normal ms-4">Nome completo</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-clipboard"></i></span>
-                                <input id="nome" class="form-control" type="text" placeholder="Nome completo do paciente" @bind="nomeDigitado">
+                                <input id="nome" class="form-control" type="text" placeholder="Nome completo do paciente" @bind="@pacienteNovo.NOME">
                             </div>
-                            @if (erroDictionary.ContainsKey("nome"))
-                            {
-                                <span class="text-danger">@erroDictionary["nome"]</span>
-                            }
                         </div>
 
                         <div class="mt-3">
-                            <label for="sex" class="text-normal ms-4">Sexo</label>
+                            <label for="dataNascimento" class="text-normal ms-4">Data de nascimento</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-cake2"></i></span>
+                                <input id="dataNascimento" class="form-control" type="date" @bind="pacienteNovo.DATANASCIMENTO">
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label for="sexo" class="text-normal ms-4">Sexo</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi @iconSexo"></i></span>
-                                <select id="sex" class="form-select" @bind="sexoSelecionado" @bind:after="AtualizarIconeSexo">
+                                <select id="sexo" class="form-select" @bind="pacienteNovo.SEXO" @bind:after="AtualizarIconeSexo">
                                     <option value="Masculino">Masculino</option>
                                     <option value="Feminino">Feminino</option>
                                     <option value="Prefiro não comentar">Prefiro não comentar</option>
@@ -48,110 +63,97 @@
                             </div>
                         </div>
 
-                        <div class="mt-3">
-                            <label for="dbirth" class="text-normal ms-4">Data de nascimento</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-cake2"></i></span>
-                                <input id="dbirth" class="form-control" type="date" @bind="dataNascimento">
-                            </div>
-                            @if (erroDictionary.ContainsKey("dataNascimento"))
-                            {
-                                <span class="text-danger">@erroDictionary["dataNascimento"]</span>
-                            }
-                        </div>
-
                     </div>
                 </div>
 
                 <div class="col-12 col-lg-6 col-md-12 col-sm-12">
-                    <div class="mt-5">
+                    <div class="mt-3">
 
                         <div>
-                            <label for="cpf" class="text-normal ms-4">CPF</label>
+                            <label for="responsavelLegal" class="text-normal ms-4">Responsável legal</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-123"></i></span>
-                                <input id="cpf" class="form-control" type="text" placeholder="123.456.789-00" @bind="cpfDigitado">
+                                <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
+                                <input id="responsavelLegal" class="form-control" type="text" placeholder="Em branco se maior / capaz" @bind="pacienteNovo.RESPONSAVELLEGAL">
                             </div>
-                            @if (erroDictionary.ContainsKey("cpf"))
-                            {
-                                <span class="text-danger">@erroDictionary["cpf"]</span>
-                            }
                         </div>
 
                         <div class="mt-3">
-                            <label for="tel" class="text-normal ms-4">Telefone</label>
+                            <label for="telefone" class="text-normal ms-4">Telefone</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                                <input id="tel" class="form-control" type="text" placeholder="(00) 00000-0000" @bind="telefoneDigitado">
+                                <input id="telefone" class="form-control" type="text" placeholder="(00) 00000-0000" @bind="pacienteNovo.TELEFONE">
                             </div>
-                            @if (erroDictionary.ContainsKey("telefone"))
-                            {
-                                <span class="text-danger">@erroDictionary["telefone"]</span>
-                            }
                         </div>
 
                         <div class="mt-3">
-                            <label for="mail" class="text-normal ms-4">E-mail</label>
+                            <label for="email" class="text-normal ms-4">E-mail</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-at"></i></span>
-                                <input id="mail" class="form-control" type="text" placeholder="paciente@@exemplo.com" @bind="emailDigitado">
+                                <input id="email" class="form-control" type="text" placeholder="paciente@@exemplo.com" @bind="pacienteNovo.EMAIL">
                             </div>
-                            @if (erroDictionary.ContainsKey("email"))
-                            {
-                                <span class="text-danger">@erroDictionary["email"]</span>
-                            }
                         </div>
 
                     </div>
                 </div>
 
                 <div class="mt-3">
-                    <label for="map" class="text-normal ms-4">Endereço</label>
+                    <label for="cpf" class="text-normal ms-4">CPF</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-wallet-fill"></i></span>
+                        <input id="cpf" class="form-control" type="text" placeholder="000.000.000-00" @bind="pacienteNovo.CPF">
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label for="endereco" class="text-normal ms-4">Endereço</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
-                        <textarea id="map" class="form-control" placeholder="Endereço completo" @bind="enderecoDigitado"></textarea>
+                        <textarea id="endereco" class="form-control" placeholder="Endereço completo" @bind="pacienteNovo.ENDERECO"></textarea>
                     </div>
-                    @if (erroDictionary.ContainsKey("endereco"))
-                    {
-                        <span class="text-danger">@erroDictionary["endereco"]</span>
-                    }
                 </div>
-
-            </form>
-
-            <div class="mt-5">
-                <div class="text-center">
-                    @if (erroDictionary.ContainsKey("geral"))
-                    {
-                        <span class="text-danger fw-bold">@erroDictionary["geral"]</span>
-                    }
-                </div>
-                <button class="btn btn-success w-100 mt-2" type="button" @onclick="TryRegistrar">Registrar</button>
             </div>
 
-        </div>
-    </CardDestaque>
+            @if (erroDictionary?.ContainsKey("geral") == true)
+            {
+                <span class="text-danger">@erroDictionary["geral"]</span>
+            }
 
+            @* ===================== BOTÕES ===================== *@
+            <div class="row mt-5 mb-5">
+                <div class="col-12 d-flex gap-2 justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary" @onclick='() => Navigation.NavigateTo("/anamnese")'>
+                        <i class="bi bi-x-lg me-1"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" @onclick="TryRegistrar">
+                        <i class="bi bi-check-lg me-1"></i> Salvar registro
+                    </button>
+                </div>
+            </div>
+
+        </AnimatedContainer>
+    </form>
 </AnimatedContainer>
 
+@if (modalAberto)
+{
+    <ModalDestaque Titulo="Redirecionar para criação de Anamnese?" AoFechar="@(() => { modalAberto = false; Navigation.NavigateTo("/anamnese"); })">
+        <div class="text-center">
+            <button class="btn btn-success" @onclick="@(() => Navigation.NavigateTo($"/anamnese/novo/{pacienteCriado.ID}"))"><i class="bi bi-check2"></i> Sim</button>
+            <button class="btn btn-danger" @onclick="@(() => Navigation.NavigateTo("/anamnese"))"><i class="bi bi-x"></i> Não</button>
+        </div>
+    </ModalDestaque>
+}
+
 @code {
-    // Inputs
-    private string nomeDigitado = string.Empty;
-    private string cpfDigitado = string.Empty;
-    private string telefoneDigitado = string.Empty;
-    private string emailDigitado = string.Empty;
-    private string enderecoDigitado = string.Empty;
-    private string sexoSelecionado = "Masculino";
-    private DateTime? dataNascimento = null;
+    //Modal
+    private bool modalAberto = false;
 
-    // Erros
-    private Dictionary<string, string> erroDictionary = new();
-
-    // UI
+    // ── UI ────────────────────────────────────────────────────────────────────
     private string iconSexo = "bi-gender-male";
+
     private void AtualizarIconeSexo()
     {
-        iconSexo = sexoSelecionado switch
+        iconSexo = pacienteNovo.SEXO switch
         {
             "Masculino" => "bi-gender-male",
             "Feminino" => "bi-gender-female",
@@ -159,31 +161,39 @@
         };
     }
 
+    private PacienteSistemaDTO pacienteNovo = new();
+    private PacienteSistemaDTO pacienteCriado;
+    private bool anamneseFound = false;
+
+    private Dictionary<string, string> erroDictionary = new();
+
     private async Task TryRegistrar()
     {
-        if (SearchErrors()) return;
-
-        erroDictionary.Clear();
-
         try
         {
-            Navigation.NavigateTo("/");
+            SearchErros();
+            if (erroDictionary.Any()) return;
+
+            if (pacienteNovo.SEXO == null) pacienteNovo.SEXO = "Masculino";
+            if (pacienteNovo.RESPONSAVELLEGAL == null) pacienteNovo.RESPONSAVELLEGAL = "Sem responsável legal";
+
+            pacienteCriado = await PacienteService.CreatePacienteAsync(pacienteNovo);
+            modalAberto = true;
         }
         catch
         {
-            erroDictionary["geral"] = "Ocorreu um erro ao tentar registrar o paciente. Tente novamente.";
+            erroDictionary["geral"] = "Ocorreu um erro ao salvar o paciente. Tente novamente.";
         }
     }
 
-    private bool SearchErrors()
+    private void SearchErros()
     {
         erroDictionary.Clear();
-        FormValidacao.ValidarNome(nomeDigitado, erroDictionary);
-        FormValidacao.ValidarCpf(cpfDigitado, erroDictionary);
-        FormValidacao.ValidarTelefone(telefoneDigitado, erroDictionary);
-        FormValidacao.ValidarEmail(emailDigitado, erroDictionary);
-        FormValidacao.ValidarEndereco(enderecoDigitado, erroDictionary);
-        FormValidacao.ValidarDataNascimento(dataNascimento, erroDictionary);
-        return erroDictionary.Count > 0;
+
+        if (pacienteNovo == null)
+        {
+            erroDictionary["geral"] = "Paciente nulo. Não é possível registrar.";
+            return;
+        }
     }
 }
