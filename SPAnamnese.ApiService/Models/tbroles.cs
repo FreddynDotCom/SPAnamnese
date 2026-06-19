@@ -1,6 +1,6 @@
 ﻿namespace SPAnamnese.ApiService.Models
 {
-    public static class tbroles
+    public static class Roles
     {
         public const string Administrador = "Administrador";
         public const string Funcionario = "Funcionario";

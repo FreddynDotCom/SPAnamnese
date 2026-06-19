@@ -1,6 +1,8 @@
-﻿namespace SPAnamnese.ApiService.Models
+﻿using SPAnamnese.ApiService.Models;
+
+namespace SPAnamnese.ApiService.DTOs
 {
-    public class tbusuario
+    public class UsuarioDTO
     {
         public int Id { get; set; }
 

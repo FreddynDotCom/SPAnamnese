@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SPAnamnese.ApiService.DTOs;
 using SPAnamnese.ApiService.Interfaces;
+using SPAnamnese.ApiService.Models;
 
 namespace SPAnamnese.ApiService.Controller
 {
@@ -78,6 +80,7 @@ namespace SPAnamnese.ApiService.Controller
         ///</summary>
         /// <returns>Pega uma lista de PACIENTES, e pagina ela</returns>
         [HttpPut("PagedPacientes")]
+        [Authorize(Roles = Roles.Paciente)]
         public async Task<IActionResult> PagedPacientes([FromBody] PacienteSistemaFiltroDTO? pacienteParams, int pageSize = 10, int pageNumber = 1)
         {
             try

@@ -28,6 +28,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<tbrespostum> tbresposta { get; set; }
 
+    public virtual DbSet<tbusuario> tbusuario { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
@@ -86,6 +88,11 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<tbrespostum>(entity =>
         {
             entity.HasKey(e => e.ID).HasName("PRIMARY");
+        });
+
+        modelBuilder.Entity<tbusuario>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
         });
 
         OnModelCreatingPartial(modelBuilder);
