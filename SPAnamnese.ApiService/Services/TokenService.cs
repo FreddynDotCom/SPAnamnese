@@ -1,10 +1,9 @@
-﻿using SPAnamnese.ApiService.Interfaces;
-using SPAnamnese.ApiService.Models;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using SPAnamnese.ApiService.DTOs;
-using System.IdentityModel.Tokens.Jwt;
+using SPAnamnese.ApiService.Interfaces;
 
 namespace SPAnamnese.ApiService.Services
 {
@@ -17,7 +16,7 @@ namespace SPAnamnese.ApiService.Services
             _configuration = configuration;
         }
 
-        public (string token, DateTime expiraEm) GerarAccessToken(tbusuario usuario)
+        public (string token, DateTime expiraEm) GerarAccessToken(UsuarioDTO usuario)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var chave = jwtSettings["Key"]

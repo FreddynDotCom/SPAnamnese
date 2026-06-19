@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SPAnamnese.ApiService.Data;
 using SPAnamnese.ApiService.DTOs;
 using SPAnamnese.ApiService.Interfaces;
-using SPAnamnese.ApiService.Models;
 
 namespace SPAnamnese.ApiService.Controller
 {
@@ -12,13 +9,13 @@ namespace SPAnamnese.ApiService.Controller
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IUsuario _service;
 
-        public AuthController(AppDbContext context, ITokenService tokenService)
+        public AuthController(ITokenService tokenService, IUsuario service)
         {
-            _context = context;
             _tokenService = tokenService;
+            _service = service;
         }
 
         [HttpPost("registrar")]
@@ -27,27 +24,9 @@ namespace SPAnamnese.ApiService.Controller
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UsuarioInfoDTO>> Registrar(RegisterRequestDTO dto)
         {
-            if (dto.Role != Roles.Administrador && dto.Role != Roles.Funcionario)
-            {
-                return BadRequest($"Role inválida. Use '{Roles.Administrador}' ou '{Roles.Funcionario}'.");
-            }
-
-            var emailJaExiste = await _context.tbusuario.AnyAsync(u => u.Email == dto.Email);
-            if (emailJaExiste)
-            {
-                return BadRequest("Já existe um usuário cadastrado com este e-mail.");
-            }
-
-            var usuario = new tbusuario
-            {
-                NomeCompleto = dto.NomeCompleto,
-                Email = dto.Email,
-                SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
-                Role = dto.Role
-            };
-
-            _context.tbusuario.Add(usuario);
-            await _context.SaveChangesAsync();
+            var usuario = await _service.RegistrarUsuario(dto);
+            if (usuario == null)
+                return BadRequest("Não foi possível registrar o usuário. Verifique os dados e tente novamente.");
 
             var resultado = new UsuarioInfoDTO
             {
@@ -66,18 +45,18 @@ namespace SPAnamnese.ApiService.Controller
         [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<TokenResponseDTO>> Login(LoginRequestDTO dto)
         {
-            var usuario = await _context.tbusuario.SingleOrDefaultAsync(u => u.Email == dto.Email && u.Ativo);
+            var usuario = await _service.AutenticarUsuario(dto);
 
-            if (usuario is null || !BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash))
+            if (usuario is null)
             {
                 return Unauthorized("E-mail ou senha inválidos.");
             }
 
-            var resposta = await EmitirTokensAsync(usuario);
+            var resposta = EmitirTokens(usuario);
             return Ok(resposta);
         }
 
-        private async Task<TokenResponseDTO> EmitirTokensAsync(tbusuario usuario)
+        private TokenResponseDTO EmitirTokens(UsuarioDTO usuario)
         {
             var (accessToken, accessExpiraEm) = _tokenService.GerarAccessToken(usuario);
 

@@ -32,18 +32,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtAudience,
 
             ValidateLifetime = true,
-            // Zero "tolerância" na expiração: o token expira exatamente
-            // no horário definido, sem margem extra. Isso facilita observar
-            // a renovação automática funcionando no momento certo.
             ClockSkew = TimeSpan.Zero,
 
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
 
-        // Adiciona um cabeçalho informativo quando o token expirou.
-        // O cliente Blazor não depende disso (ele reage ao status 401),
-        // mas é útil para depuração e fins didáticos.
         options.Events = new JwtBearerEvents
         {
             OnAuthenticationFailed = context =>
@@ -119,6 +113,7 @@ builder.Services.AddAutoMapper(typeof(CoreMapper));
 //Injeção de Dependencia
 builder.Services.AddScoped<IPacientesSistema, PacientesSistemaService>();
 builder.Services.AddScoped<IAnamnese, AnamneseService>();
+builder.Services.AddScoped<IUsuario, UsuarioService>();
 
 //AUTH INJECTION
 builder.Services.AddScoped<ITokenService, TokenService>();
