@@ -8,7 +8,6 @@ using SPAnamnese.ApiService.Models;
 
 namespace SPAnamnese.ApiService.Controller
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class PacientesSistemaController : ControllerBase

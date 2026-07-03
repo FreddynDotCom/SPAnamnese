@@ -1,12 +1,10 @@
 ﻿@page "/"
 @page "/login"
-@using SPAnamnese.Web.Services
 
 @inject NavigationManager Navigation
-@inject AuthService AuthService
 @layout EmptyLayout
 
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@rendermode InteractiveServer
 
 <PageTitle>Login - @SiteConfig.NomeSite</PageTitle>
 
@@ -24,10 +22,10 @@
 
             <form>
                 <div class="mt-5">
-                    <label for="email" class="text-normal ms-4">Email</label>
+                    <label for="cpf" class="text-normal ms-4">Cpf</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-123"></i></span>
-                        <input id="email" class="form-control" type="text" placeholder="Email" @bind="emailDigitado">
+                        <input id="cpf" class="form-control" type="text" placeholder="123.456.789.00" @bind="cpfDigitado">
                     </div>
 
                     @if (erroDictionary?.ContainsKey("cpf") == true)
@@ -76,12 +74,12 @@
 
 @code {
     //Inputs user
-    private string emailDigitado = string.Empty;
+    private string cpfDigitado = string.Empty;
     private string senhaDigitada = string.Empty;
 
     //Label erro
     private string geralErroLabel = string.Empty;
-    private string emailErroLabel = string.Empty;
+    private string cpfErroLabel = string.Empty;
     private string senhaErroLabel = string.Empty;
     //Dictionaty erro
     private Dictionary<string, string> erroDictionary = new();
@@ -95,15 +93,7 @@
         erroDictionary.Clear();
         try
         {
-            var (sucesso, erro) = await AuthService.LoginAsync(emailDigitado, senhaDigitada);
-            if (sucesso)
-            {
-                Navigation.NavigateTo("/anamnese");
-            }
-            else
-            {
-                erroDictionary.Add("geral", erro);
-            }
+            Navigation.NavigateTo("/anamnese");
         }
         catch
         {
@@ -115,7 +105,7 @@
     private bool SearchErrors()
     {
         erroDictionary.Clear();
-        FormValidacao.ValidarEmail(emailDigitado, erroDictionary);
+        FormValidacao.ValidarCpf(cpfDigitado, erroDictionary);
         FormValidacao.ValidarSenha(senhaDigitada, erroDictionary);
         return erroDictionary.Count > 0;
     }

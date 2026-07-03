@@ -59,12 +59,19 @@ namespace SPAnamnese.Web.ServiceWeb
             int pageSize = 10,
             int pageNumber = 1)
         {
-            var url = $"PacientesSistema/PagedPacientes?pageSize={pageSize}&pageNumber={pageNumber}";
-            var response = await _httpClient.PutAsJsonAsync(url, filtro);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var url = $"PacientesSistema/PagedPacientes?pageSize={pageSize}&pageNumber={pageNumber}";
+                var response = await _httpClient.PutAsJsonAsync(url, filtro);
+                response.EnsureSuccessStatusCode();
 
-            var result = await response.Content.ReadFromJsonAsync<PagedResult<PacienteSistemaDTO>>();
-            return (result?.Items ?? new List<PacienteSistemaDTO>(), result?.TotalCount ?? 0);
+                var result = await response.Content.ReadFromJsonAsync<PagedResult<PacienteSistemaDTO>>();
+                return (result?.Items ?? new List<PacienteSistemaDTO>(), result?.TotalCount ?? 0);
+            }
+            catch
+            {
+                return (new List<PacienteSistemaDTO>(), 0);
+            }
         }
     }
 
