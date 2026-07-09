@@ -9,7 +9,7 @@ using SPAnamnese.Web.ServiceWeb;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+//builder.AddServiceDefaults();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -62,6 +62,6 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapDefaultEndpoints();
+//app.MapDefaultEndpoints();
 
 app.Run();

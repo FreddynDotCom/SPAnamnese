@@ -55,7 +55,7 @@ builder.Services.AddAuthorization();
 //--------------------------------------------------------------------------------
 // CORS SETTINGS------------------------------------------------------------------
 var origensPermitidas = builder.Configuration.GetSection("CorsOrigensPermitidas").Get<string[]>()
-    ?? new[] { "https://localhost:5205" };
+    ?? new[] { "https://localhost:5171" };
 
 builder.Services.AddCors(options =>
 {
@@ -68,7 +68,7 @@ builder.Services.AddCors(options =>
 });
 //--------------------------------------------------------------------------------
 
-builder.AddServiceDefaults();
+//builder.AddServiceDefaults();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi(options =>
 {
@@ -115,6 +115,8 @@ builder.Services.AddScoped<IPacientesSistema, PacientesSistemaService>();
 builder.Services.AddScoped<IAnamnese, AnamneseService>();
 builder.Services.AddScoped<IUsuario, UsuarioService>();
 
+builder.Services.AddScoped<ITeste, TesteService>();
+
 //AUTH INJECTION
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddControllers();
@@ -129,7 +131,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(op => op.SwaggerEndpoint("/openapi/v1.json", "SPAnamnese"));
 }
 
-app.MapDefaultEndpoints();
+app.UseCors("BlazorClient");
+app.UseAuthentication();
+app.UseAuthorization();
+
+//app.MapDefaultEndpoints();
 
 app.MapControllers();
 app.Run();

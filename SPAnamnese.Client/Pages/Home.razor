@@ -1,0 +1,99 @@
+﻿@page "/"
+@page "/login"
+
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@layout EmptyLayout
+
+<PageTitle>Login - @SiteConfig.NomeSite</PageTitle>
+
+@* <AnimatedContainer Distance="80"
+                   Direction="vertical"
+                   Duration="0.9"
+                   Ease="power3.out"
+                   Delay="0"
+                   AnimateOpacity="true"
+                   Enabled="@SiteConfig.HabilitarAnimacoes"> *@
+
+    <CardDestaque>
+        <div>
+            <h1 class="fw-bold">Bem-vindo(a) de volta!</h1>
+
+            <form>
+                <div class="mt-5">
+                    <label for="email" class="text-normal ms-4">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-123"></i></span>
+                        <input id="email" class="form-control" type="email" placeholder="seu.email@exemplo.com" @bind="emailDigitado">
+                    </div>
+
+                    @if (erroDictionary?.ContainsKey("email") == true)
+                    {
+                        <span class="text-danger">@erroDictionary["email"]</span>
+                    }
+                </div>
+
+                <div class="mt-3">
+                    <label for="password" class="text-normal ms-4">Senha</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-key"></i></span>
+                        <input id="password" class="form-control" type="password" placeholder="Insira sua senha" @bind="senhaDigitada">
+                    </div>
+
+                    @if (erroDictionary?.ContainsKey("senha") == true)
+                    {
+                        <span class="text-danger">@erroDictionary["senha"]</span>
+                    }
+                </div>
+
+                <div class="mt-5">
+                    <div class="text-center">
+                        @if (erroDictionary?.ContainsKey("geral") == true)
+                        {
+                            <span class="text-danger fw-bold">@erroDictionary["geral"]</span>
+                        }
+                    </div>
+
+                    <button class="btn btn-success w-100" type="button" @onclick="TryLogin">Entrar</button>
+
+                    <span style="font-size: 12px;" class="text-normal ps-2">
+                        <a class="text-sub" href="/registrar-paciente">Registre-se</a>.
+                    </span>
+                </div>
+            </form>
+        </div>
+    </CardDestaque>
+
+@* </AnimatedContainer> *@
+
+@code {
+    private string emailDigitado = string.Empty;
+    private string senhaDigitada = string.Empty;
+    private Dictionary<string, string> erroDictionary = new();
+
+    private async Task TryLogin()
+    {
+        if (SearchErrors()) return;
+
+        erroDictionary.Clear();
+
+        var (sucesso, erro) = await AuthService.LoginAsync(emailDigitado, senhaDigitada);
+
+        if (sucesso)
+        {
+            Navigation.NavigateTo("/anamnese", forceLoad: false);
+        }
+        else
+        {
+            erroDictionary["geral"] = erro ?? "Algo deu errado!";
+        }
+    }
+
+    private bool SearchErrors()
+    {
+        erroDictionary.Clear();
+        FormValidacao.ValidarEmail(emailDigitado, erroDictionary);
+        FormValidacao.ValidarSenha(senhaDigitada, erroDictionary);
+        return erroDictionary.Count > 0;
+    }
+}
