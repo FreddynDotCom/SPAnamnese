@@ -1,0 +1,21 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page container" style="padding-top: 1rem;">
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<style>
+    html {
+        height: 100%;
+    }
+
+    body {
+        min-height: 100dvh;
+        display: grid;
+        align-content: center;
+    }
+</style>

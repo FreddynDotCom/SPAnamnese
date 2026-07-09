@@ -1,0 +1,756 @@
+﻿@page "/anamnese/novo/{idPaciente:int}"
+
+@inject AnamneseServiceWeb AnamneseService
+@inject PacientesSistemaServiceWeb PacienteService
+@inject NavigationManager Navigation
+
+<PageTitle>Nova Anamnese - @SiteConfig.NomeSite</PageTitle>
+
+@if (!pacienteFound)
+{
+    <div class="text-center mt-5">
+        <h3 class="fw-bolder">PACIENTE NÃO ENCONTRADO</h3>
+        <button type="button" class="btn btn-outline-secondary mt-3" @onclick='() => Navigation.NavigateTo("/anamnese")'>
+            <i class="bi bi-x-lg me-1"></i> Voltar
+        </button>
+    </div>
+}
+else
+{
+    <h3 class="fw-bolder">NOVA ANAMNESE - @paciente?.NOME</h3>
+
+    <form class="row mt-5">
+
+        @* ===================== 1. IDENTIFICAÇÃO ===================== *@
+        <div class="row">
+            <h4 class="fw-bold text-success">1. Identificação do paciente</h4>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="nome" class="text-normal ms-4">Nome completo</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-clipboard"></i></span>
+                            <input id="nome" class="form-control" type="text" value="@paciente.NOME" disabled>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="dataNascimento" class="text-normal ms-4">Data de nascimento</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-cake2"></i></span>
+                            <input id="dataNascimento" class="form-control" type="date" @bind="@paciente.DATANASCIMENTO" disabled>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="sexo" class="text-normal ms-4">Sexo</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi @iconSexo"></i></span>
+                            <input id="sexo" class="form-control" type="text" value="@paciente.SEXO" disabled>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="responsavelLegal" class="text-normal ms-4">Responsável legal</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
+                            <input id="responsavelLegal" class="form-control" type="text" value="@paciente.RESPONSAVELLEGAL" placeholder="Em branco se maior / capaz" disabled>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="telefone" class="text-normal ms-4">Telefone</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                            <input id="telefone" class="form-control" type="text" value="@paciente.TELEFONE" placeholder="(00) 00000-0000" disabled>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="email" class="text-normal ms-4">E-mail</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-at"></i></span>
+                            <input id="email" class="form-control" type="text" value="@paciente.EMAIL" placeholder="paciente@exemplo.com" disabled>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <label for="endereco" class="text-normal ms-4">Endereço</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                    <textarea id="endereco" class="form-control" placeholder="Endereço completo" disabled>@paciente.ENDERECO</textarea>
+                </div>
+            </div>
+        </div>
+
+        @* ===================== 2. QUEIXA PRINCIPAL ===================== *@
+        <h4 class="fw-bold text-success mt-5">2. QP (Queixa principal)</h4>
+        <div class="row">
+            <div class="mt-3">
+                <label for="queixaPrincipal" class="text-normal ms-4">Queixa principal</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-question-circle"></i></span>
+                    <textarea id="queixaPrincipal" class="form-control" placeholder="A frase do paciente (preferencialmente literal), resumindo o motivo da consulta" @bind="novaAnamnese.QueixaPrincipal" rows="5"></textarea>
+                </div>
+                @if (erroDictionary?.ContainsKey("queixaPrincipal") == true)
+                {
+                    <span class="text-danger">@erroDictionary["queixaPrincipal"]</span>
+                }
+            </div>
+        </div>
+
+        @* ===================== 3. HMA / HDA ===================== *@
+        <h4 class="fw-bold text-success mt-5">3. HMA / HDA (História da moléstia atual)</h4>
+        <div class="row">
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="hmaInicio" class="text-normal ms-4">Quando começou</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar-plus"></i></span>
+                            <input id="hmaInicio" class="form-control" type="date" @bind="novaAnamnese.HmaInicio">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("hmaInicio") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["hmaInicio"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="hmaEvolucao" class="text-normal ms-4">Como evoluiu</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-bar-chart"></i></span>
+                            <input id="hmaEvolucao" class="form-control" type="text" placeholder="Piora / Melhora" @bind="novaAnamnese.HmaEvolucao">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("hmaEvolucao") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["hmaEvolucao"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="hmaLocalizacao" class="text-normal ms-4">Localização, intensidade, duração</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-pin-map"></i></span>
+                            <textarea id="hmaLocalizacao" class="form-control" placeholder="Descrever onde, como, e quanto tempo dura" @bind="novaAnamnese.HmaLocalizacao" rows="4"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("hmaLocalizacao") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["hmaLocalizacao"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="hmaImpactoRotina" class="text-normal ms-4">Impacto na rotina</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-walking"></i></span>
+                            <textarea id="hmaImpactoRotina" class="form-control" placeholder="Como o problema afeta o dia a dia do paciente" @bind="novaAnamnese.HmaImpactoRotina" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("hmaImpactoRotina") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["hmaImpactoRotina"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div class="mt-3">
+                        <label for="hmaSintomasAssociados" class="text-normal ms-4">Sintomas associados</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                            <textarea id="hmaSintomasAssociados" class="form-control" placeholder="Outros sintomas presentes" @bind="novaAnamnese.HmaSintomasAssociados" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("hmaSintomasAssociados") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["hmaSintomasAssociados"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="hmaMelhoraPiora" class="text-normal ms-4">O que melhora / piora</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-plus-slash-minus"></i></span>
+                            <textarea id="hmaMelhoraPiora" class="form-control" placeholder="Fatores que aliviam ou agravam os sintomas" @bind="novaAnamnese.HmaMelhoraPiora" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("hmaMelhoraPiora") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["hmaMelhoraPiora"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="hmaTratamentosFeitos" class="text-normal ms-4">Tratamentos já feitos e resposta</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-capsule"></i></span>
+                            <textarea id="hmaTratamentosFeitos" class="form-control" placeholder="Medicações, terapias, cirurgias e respostas obtidas" @bind="novaAnamnese.HmaTratamentosFeitos" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("hmaTratamentosFeitos") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["hmaTratamentosFeitos"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        @* ===================== 4. ANTECEDENTES PESSOAIS ===================== *@
+        <h4 class="fw-bold text-success mt-5">4. Antecedentes pessoais</h4>
+        <div class="row">
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="antDoencasPrevias" class="text-normal ms-4">Doenças prévias</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-clipboard2-pulse"></i></span>
+                            <textarea id="antDoencasPrevias" class="form-control" placeholder="Ex.: Hipertensão, diabetes, asma..." @bind="novaAnamnese.AntDoencasPrevias" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("antDoencasPrevias") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["antDoencasPrevias"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="antCirurgiasInternacoes" class="text-normal ms-4">Cirurgias / internações</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-hospital"></i></span>
+                            <textarea id="antCirurgiasInternacoes" class="form-control" placeholder="Procedimentos cirúrgicos ou internações anteriores" @bind="novaAnamnese.AntCirurgiasInternacoes" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("antCirurgiasInternacoes") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["antCirurgiasInternacoes"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="antAlergias" class="text-normal ms-4">Alergias</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-exclamation-triangle"></i></span>
+                            <textarea id="antAlergias" class="form-control" placeholder="Medicamentos, alimentos, materiais..." @bind="novaAnamnese.AntAlergias" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("antAlergias") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["antAlergias"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="antMedicamentos" class="text-normal ms-4">Uso atual de medicamentos</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-prescription2"></i></span>
+                            <textarea id="antMedicamentos" class="form-control" placeholder="Nome, dose e horário de cada medicamento" @bind="novaAnamnese.AntMedicamentos" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("antMedicamentos") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["antMedicamentos"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="antVacinas" class="text-normal ms-4">Vacinas (quando relevante)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-shield-plus"></i></span>
+                            <input id="antVacinas" class="form-control" type="text" placeholder="Ex.: Cartão de vacinas atualizado, última dose de tétano..." @bind="novaAnamnese.AntVacinas">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("antVacinas") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["antVacinas"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="antGestacaoPartos" class="text-normal ms-4">Gestação / partos (quando pertinente)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-heart-pulse"></i></span>
+                            <input id="antGestacaoPartos" class="form-control" type="text" placeholder="Número de gestações, partos, abortos..." @bind="novaAnamnese.AntGestacaoPartos">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("antGestacaoPartos") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["antGestacaoPartos"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        @* ===================== 5. ANTECEDENTES FAMILIARES ===================== *@
+        <h4 class="fw-bold text-success mt-5">5. Antecedentes familiares</h4>
+        <div class="row">
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="famDoencasCronicas" class="text-normal ms-4">Doenças crônicas</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-people"></i></span>
+                            <textarea id="famDoencasCronicas" class="form-control" placeholder="Hipertensão, diabetes, dislipidemia..." @bind="novaAnamnese.FamDoencasCronicas" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("famDoencasCronicas") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["famDoencasCronicas"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="famCardiopatiasAvc" class="text-normal ms-4">Cardiopatias / AVC</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-heart"></i></span>
+                            <input id="famCardiopatiasAvc" class="form-control" type="text" placeholder="Infarto, AVC, morte súbita..." @bind="novaAnamnese.FamCardiopatiasAvc">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("famCardiopatiasAvc") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["famCardiopatiasAvc"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="famCancer" class="text-normal ms-4">Câncer</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-bandaid"></i></span>
+                            <input id="famCancer" class="form-control" type="text" placeholder="Tipo e grau de parentesco" @bind="novaAnamnese.FamCancer">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("famCancer") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["famCancer"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="famTranstornosMentais" class="text-normal ms-4">Transtornos mentais</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-emoji-neutral"></i></span>
+                            <input id="famTranstornosMentais" class="form-control" type="text" placeholder="Depressão, esquizofrenia, bipolaridade..." @bind="novaAnamnese.FamTranstornosMentais">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("famTranstornosMentais") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["famTranstornosMentais"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="famDoencasHereditarias" class="text-normal ms-4">Doenças hereditárias</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-diagram-3"></i></span>
+                            <textarea id="famDoencasHereditarias" class="form-control" placeholder="Hemofilia, doenças genéticas, síndromes..." @bind="novaAnamnese.FamDoencasHereditarias" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("famDoencasHereditarias") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["famDoencasHereditarias"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        @* ===================== 6. HÁBITOS E ESTILO DE VIDA ===================== *@
+        <h4 class="fw-bold text-success mt-5">6. Hábitos e estilo de vida</h4>
+        <div class="row">
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="habAlimentacaoSonoHidratacao" class="text-normal ms-4">Alimentação, sono e hidratação</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-cup-straw"></i></span>
+                            <textarea id="habAlimentacaoSonoHidratacao" class="form-control" placeholder="Qualidade da dieta, horas de sono, consumo de água..." @bind="novaAnamnese.HabAlimentacaoSonoHidratacao" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("habAlimentacaoSonoHidratacao") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["habAlimentacaoSonoHidratacao"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="habAtividadeFisica" class="text-normal ms-4">Atividade física</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-bicycle"></i></span>
+                            <input id="habAtividadeFisica" class="form-control" type="text" placeholder="Tipo, frequência e duração" @bind="novaAnamnese.HabAtividadeFisica">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("habAtividadeFisica") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["habAtividadeFisica"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="habSubstancias" class="text-normal ms-4">Tabagismo / álcool / outras substâncias</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-slash-circle"></i></span>
+                            <textarea id="habSubstancias" class="form-control" placeholder="Tipo, quantidade e tempo de uso ou cessação" @bind="novaAnamnese.HabSubstancias" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("habSubstancias") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["habSubstancias"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="habTrabalhoPostura" class="text-normal ms-4">Trabalho, postura e rotina</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+                            <textarea id="habTrabalhoPostura" class="form-control" placeholder="Ocupação, carga horária, riscos ocupacionais..." @bind="novaAnamnese.HabTrabalhoPostura" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("habTrabalhoPostura") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["habTrabalhoPostura"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="habEstressePsicossocial" class="text-normal ms-4">Estresse e fatores psicossociais</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-cloud-lightning"></i></span>
+                            <textarea id="habEstressePsicossocial" class="form-control" placeholder="Situação familiar, financeira, relacional, nível de estresse..." @bind="novaAnamnese.HabEstressePsicossocial" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("habEstressePsicossocial") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["habEstressePsicossocial"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        @* ===================== 7. REVISÃO POR SISTEMAS ===================== *@
+        <h4 class="fw-bold text-success mt-5">7. Revisão por sistemas</h4>
+        <div class="row">
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="revRespiratorio" class="text-normal ms-4">Respiratório</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-wind"></i></span>
+                            <input id="revRespiratorio" class="form-control" type="text" placeholder="Tosse, falta de ar, sibilos..." @bind="novaAnamnese.RevRespiratorio">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("revRespiratorio") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["revRespiratorio"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="revCardiovascular" class="text-normal ms-4">Cardiovascular</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-activity"></i></span>
+                            <input id="revCardiovascular" class="form-control" type="text" placeholder="Dor torácica, palpitações, edema..." @bind="novaAnamnese.RevCardiovascular">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("revCardiovascular") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["revCardiovascular"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="revGastrointestinal" class="text-normal ms-4">Gastrointestinal</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-thermometer"></i></span>
+                            <input id="revGastrointestinal" class="form-control" type="text" placeholder="Náuseas, refluxo, dor abdominal, hábito intestinal..." @bind="novaAnamnese.RevGastrointestinal">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("revGastrointestinal") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["revGastrointestinal"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="revNeurologico" class="text-normal ms-4">Neurológico</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lightning"></i></span>
+                            <input id="revNeurologico" class="form-control" type="text" placeholder="Tontura, formigamento, cefaleia, síncope..." @bind="novaAnamnese.RevNeurologico">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("revNeurologico") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["revNeurologico"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="revGeniturinario" class="text-normal ms-4">Geniturinário</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-droplet"></i></span>
+                            <input id="revGeniturinario" class="form-control" type="text" placeholder="Dor, alterações urinárias ou genitais..." @bind="novaAnamnese.RevGeniturinario">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("revGeniturinario") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["revGeniturinario"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="revOsteoarticular" class="text-normal ms-4">Osteoarticular</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-arms-up"></i></span>
+                            <input id="revOsteoarticular" class="form-control" type="text" placeholder="Dor articular, limitação de movimento, edema..." @bind="novaAnamnese.RevOsteoarticular">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("revOsteoarticular") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["revOsteoarticular"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="revDermatologico" class="text-normal ms-4">Dermatológico</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-stars"></i></span>
+                            <input id="revDermatologico" class="form-control" type="text" placeholder="Lesões, manchas, prurido, alterações ungueais..." @bind="novaAnamnese.RevDermatologico">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("revDermatologico") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["revDermatologico"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="revOutros" class="text-normal ms-4">Outros sistemas</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-three-dots"></i></span>
+                            <textarea id="revOutros" class="form-control" placeholder="Endócrino, oftalmológico, otorrinolaringológico, psiquiátrico..." @bind="novaAnamnese.RevOutros" rows="3"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("revOutros") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["revOutros"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        @* ===================== 8. EXPECTATIVAS E PLANO INICIAL ===================== *@
+        <h4 class="fw-bold text-success mt-5">8. Expectativas e plano inicial</h4>
+        <div class="row">
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="expectativaPaciente" class="text-normal ms-4">Expectativa do paciente</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-chat-quote"></i></span>
+                            <textarea id="expectativaPaciente" class="form-control" placeholder="O que o paciente espera do atendimento?" @bind="novaAnamnese.ExpectativaPaciente" rows="4"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("expectativaPaciente") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["expectativaPaciente"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="planoOrientacoesIniciais" class="text-normal ms-4">Orientações iniciais</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-journal-text"></i></span>
+                            <textarea id="planoOrientacoesIniciais" class="form-control" placeholder="Condutas e orientações dadas ao paciente neste atendimento" @bind="novaAnamnese.PlanoOrientacoesIniciais" rows="4"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("planoOrientacoesIniciais") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["planoOrientacoesIniciais"]</span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6 col-md-12 col-sm-12">
+                <div class="mt-3">
+
+                    <div>
+                        <label for="planoProximosPassos" class="text-normal ms-4">Próximos passos</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-list-check"></i></span>
+                            <textarea id="planoProximosPassos" class="form-control" placeholder="Exames solicitados, retorno, encaminhamentos..." @bind="novaAnamnese.PlanoProximosPassos" rows="4"></textarea>
+                        </div>
+                        @if (erroDictionary?.ContainsKey("planoProximosPassos") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["planoProximosPassos"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="planoDataRetorno" class="text-normal ms-4">Data de retorno</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                            <input id="planoDataRetorno" class="form-control" type="date" @bind="novaAnamnese.PlanoDataRetorno">
+                        </div>
+                        @if (erroDictionary?.ContainsKey("planoDataRetorno") == true)
+                        {
+                            <span class="text-danger">@erroDictionary["planoDataRetorno"]</span>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="planoDataCriacao" class="text-normal ms-4">Data da criação</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                            <input id="planoDataCriacao" class="form-control" type="date" value="@novaAnamnese.DataCriacao.ToString("yyyy-MM-dd")" disabled>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        @if (erroDictionary?.ContainsKey("geral") == true)
+        {
+            <span class="text-danger">@erroDictionary["geral"]</span>
+        }
+
+        @* ===================== BOTÕES ===================== *@
+        <div class="row mt-5 mb-5">
+            <div class="col-12 d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-outline-secondary" @onclick='() => Navigation.NavigateTo("/anamnese")'>
+                    <i class="bi bi-x-lg me-1"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" @onclick="TryRegistrar">
+                    <i class="bi bi-check-lg me-1"></i> Salvar registro
+                </button>
+            </div>
+        </div>
+    </form>
+}
+
+@code {
+    [Parameter]
+    public int idPaciente { get; set; }
+
+    // ── UI ────────────────────────────────────────────────────────────────────
+    private string iconSexo = "bi-gender-male";
+
+    private void AtualizarIconeSexo()
+    {
+        iconSexo = paciente?.SEXO switch
+        {
+            "Masculino" => "bi-gender-male",
+            "Feminino" => "bi-gender-female",
+            _ => "bi-gender-ambiguous"
+        };
+    }
+
+    // ── Estado ────────────────────────────────────────────────────────────────
+    private PacienteSistemaDTO? paciente;
+    private bool pacienteFound = false;
+
+    private AnamneseDTO novaAnamnese = new()
+    {
+        DataCriacao = DateTime.Now
+    };
+
+    private Dictionary<string, string> erroDictionary = new();
+
+    // ── Inicialização ─────────────────────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        paciente = await PacienteService.GetByIdAsync(idPaciente);
+
+        if (paciente is not null && paciente.ID != 0)
+        {
+            pacienteFound = true;
+            AtualizarIconeSexo();
+
+            // Vincula o paciente à anamnese desde o início
+            novaAnamnese.PacienteId = paciente.ID;
+        }
+    }
+
+    // ── Salvar ────────────────────────────────────────────────────────────────
+    private async Task TryRegistrar()
+    {
+        try
+        {
+            SearchErros();
+            if (erroDictionary.Any()) return;
+
+            novaAnamnese.PacienteId = idPaciente;
+            // novaAnamnese.ProfissionalId = 1;
+
+            await AnamneseService.CreateAnamneseAsync(novaAnamnese);
+            Navigation.NavigateTo("/anamnese");
+        }
+        catch
+        {
+            erroDictionary["geral"] = "Ocorreu um erro ao salvar a anamnese. Tente novamente.";
+        }
+    }
+
+    private void SearchErros()
+    {
+        erroDictionary.Clear();
+
+        if (novaAnamnese == null)
+        {
+            erroDictionary["geral"] = "Anamnese nula. Não é possível registrar.";
+            return;
+        }
+
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.QueixaPrincipal, "queixaPrincipal", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.HmaEvolucao, "hmaEvolucao", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.HmaLocalizacao, "hmaLocalizacao", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.HmaImpactoRotina, "hmaImpactoRotina", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.HmaSintomasAssociados, "hmaSintomasAssociados", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.HmaMelhoraPiora, "hmaMelhoraPiora", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.HmaTratamentosFeitos, "hmaTratamentosFeitos", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.AntDoencasPrevias, "antDoencasPrevias", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.AntCirurgiasInternacoes, "antCirurgiasInternacoes", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.AntAlergias, "antAlergias", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.AntMedicamentos, "antMedicamentos", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.ExpectativaPaciente, "expectativaPaciente", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.PlanoOrientacoesIniciais, "planoOrientacoesIniciais", erroDictionary);
+        FormValidacao.ValidarCampoPadraoObrigatorio(novaAnamnese.PlanoProximosPassos, "planoProximosPassos", erroDictionary);
+    }
+}

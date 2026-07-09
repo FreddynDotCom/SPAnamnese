@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SPAnamnese.ApiService.DTOs;
 using SPAnamnese.ApiService.Interfaces;
 
 namespace SPAnamnese.ApiService.Controller
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AnamneseController : ControllerBase

@@ -7,8 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SPAnamnese.ServiceDefaults\SPAnamnese.ServiceDefaults.csproj" />
     <ProjectReference Include="..\SPAnamnese.ApiService\SPAnamnese.ApiService.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+	</ItemGroup>
 
 </Project>

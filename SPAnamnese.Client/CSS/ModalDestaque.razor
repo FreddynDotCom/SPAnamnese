@@ -1,0 +1,44 @@
+﻿@if (Blur)
+{
+    <div class="modal-backdrop-blur"></div>             
+}
+
+<div class="modal d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold text-success">@Titulo</h5>
+                <button type="button" class="btn-close" @onclick="Fechar"></button>
+            </div>
+
+            <div class="modal-body">
+                @ChildContent
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal-backdrop-blur {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 1040;
+    }
+
+    .modal {
+        z-index: 1050;
+    }
+</style>
+
+@code {
+    [Parameter] public bool Blur { get; set; } = false;
+    [Parameter] public string Titulo { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback AoFechar { get; set; }
+
+    private async Task Fechar() => await AoFechar.InvokeAsync();
+}

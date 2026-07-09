@@ -10,7 +10,7 @@
 
         public string SenhaHash { get; set; } = string.Empty;
 
-        public string Role { get; set; } = tbroles.Funcionario;
+        public string Role { get; set; } = Roles.Funcionario;
 
         public bool Ativo { get; set; } = true;
 

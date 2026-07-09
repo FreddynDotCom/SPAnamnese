@@ -20,6 +20,9 @@ namespace SPAnamnese.ApiService.Mapper
 
             //Mapper Anamnese -> AnamneseDTO
             CreateMap<tbanamnese, AnamneseDTO>().ReverseMap();
+
+            //Mapper Usuario -> UsuarioDTO
+            CreateMap<tbusuario, UsuarioDTO>().ReverseMap();
         }
     }
 }
